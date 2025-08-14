@@ -1,31 +1,35 @@
-import { useEffect,useState } from 'react'
-import { getTest } from './api';
-import './App.css'
+import { useEffect, useState } from "react";
+import FeedbackForm from "./FeedbackForm";
+import { API_BASE } from "./api";
 
 function App() {
-  const [data, setData] = useState([]);
+  const [feedbacks, setFeedbacks] = useState([]);
+
+  const fetchFeedbacks = async () => {
+    const res = await fetch(`${API_BASE}/api/feedback`);
+    const data = await res.json();
+    setFeedbacks(data);
+  };
 
   useEffect(() => {
-    getTest().then(setData);
+    fetchFeedbacks();
   }, []);
 
-  return (
-  
-      <div className="p-4">
-      <h1 className="text-2xl font-bold">Product Feedback System</h1>
-       <ul>
-        
-          {data.map((d) => (
-            <li className='flex justify-between items-center p-2 border border-sm rounded-2xl m-2' key={d.date}> 
-              <p>{d.date}</p>
-              <p>temperatureC: {d.temperatureC}</p>
-              <p>temperatureF: {d.temperatureF}</p>
-              <p>Summary: {d.summary}</p>
-            </li>
-          )) && "loading"}
-        </ul>
+return (
+    <div className="p-4 max-w-2xl mx-auto">
+      <h1 className="text-3xl font-bold mb-4">Product Feedback</h1>
+      <FeedbackForm onSubmit={fetchFeedbacks} />
+      <div className="mt-6">
+        {feedbacks.map(f => (
+          <div key={f.id} className="p-4 border rounded mb-2">
+            <h2 className="font-bold">{f.productName}</h2>
+            <p className="text-sm text-gray-600">By {f.userName || "Anonymous"} - {f.rating}⭐</p>
+            <p>{f.comment}</p>
+          </div>
+        ))}
       </div>
-  )
+    </div>
+  );
 }
 
 export default App
